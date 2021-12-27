@@ -1,0 +1,57 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.calculator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: center;
+    gap: 10vh;
+
+    width: 30vw;
+    min-width: 300px;
+    padding: 24px;
+    margin: auto;
+
+    background-color: blue;
+}
+
+.display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: auto;
+
+    width: 100%;
+    height: 15vh;
+    min-height: 100px;
+
+    background-color: white;
+
+    font-size: 3vw;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    width: 100%;
+    flex: auto;
+}
+
+.button-row {
+    display: flex;
+    flex: auto;
+    gap: 12px;
+}
+
+button {
+    width: 25%;
+    aspect-ratio: 1.25;
+
+    font-size: 2vw;
+}
