@@ -27,24 +27,44 @@ function operate(operator, a, b) {
     }
 }
 
-// Base Function Testing
-/*
-const a = prompt("a = ?");
-const b = prompt("b = ?");
+// Display Functions //
+function updateDisplay() {
+    if(this.id == "backspace"){
+        //make this into a function
+        setDisplayText(getDisplayText().slice(0,getDisplayText.length-1));
+    } else if(this.id == "power"){
+        setDisplayText(getDisplayText() + "^");
+    } else if(this.id == "sign"){
+        //future
+    } else if(this.id == "clear"){
+        setDisplayText("");
+    } else if(this.id == "decimal"){
+        setDisplayText(getDisplayText() + ".");
+    } else if(this.id == "equals"){
+        //future
+    } else{
+        setDisplayText(getDisplayText() + this.textContent);
+    }
 
-console.log(add(a,b));
-console.log(subtract(a,b));
-console.log(multiply(a,b));
-console.log(divide(a,b));
-*/
+    const display = document.querySelector(".display .expression");
+    display.textContent = displayText;
+}
 
-// Operator Function Testing
-/*
-const operator = prompt("Operator: ");
-const a = prompt("a: ");
-const b = prompt("b: ");
+function setDisplayText(text) {
+    displayText = text;
+}
 
-console.log(operate(operator, a, b));
-*/
+function getDisplayText(){
+    return displayText;
+}
 
+function initButtons() {
+    const buttons = document.querySelectorAll("button");
+    buttons.forEach(button => {
+        button.addEventListener("click",updateDisplay);
+    });
+}
 
+let displayText = "";
+
+initButtons();
