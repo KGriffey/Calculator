@@ -12,59 +12,99 @@ function multiply(a, b) {
 }
 
 function divide(a, b) {
+    if(b == 0){
+        return "ERR: DIV 0";
+    }
     return a / b;
 }
 
 function operate(operator, a, b) {
-    if (operator == "add") {
+    if (operator == "+") {
         return add(a, b);
-    } else if (operator == "subtract") {
+    } else if (operator == "-") {
         return subtract(a, b);
-    } else if (operator == "multiply") {
+    } else if (operator == "*") {
         return multiply(a, b);
-    } else {
+    } else if (operator == "/") {
         return divide(a, b);
+    } else {
+        return "error";
     }
 }
 
 // Display Functions //
 function updateDisplay() {
-    if(this.id == "backspace"){
+    let parsedExpression = parseExpression();
+
+
+    if (this.id == "backspace") {
         //make this into a function
-        setDisplayText(getDisplayText().slice(0,getDisplayText.length-1));
-    } else if(this.id == "power"){
-        setDisplayText(getDisplayText() + "^");
-    } else if(this.id == "sign"){
-        //future
-    } else if(this.id == "clear"){
-        setDisplayText("");
-    } else if(this.id == "decimal"){
-        setDisplayText(getDisplayText() + ".");
-    } else if(this.id == "equals"){
-        //future
-    } else{
-        setDisplayText(getDisplayText() + this.textContent);
+        setExpression(getExpression().slice(0, getExpression.length - 1));
+    } else if (this.id == "power") {
+        setExpression(getExpression() + "^");
+    } else if (this.id == "sign") {
+
+    } else if (this.id == "clear") {
+        setExpression("");
+        setResult("");
+    } else if (this.id == "decimal") {
+        setExpression(getExpression() + ".");
+    } else if (this.id == "equals") {
+        setResult(operate(parsedExpression[1], parsedExpression[0], parsedExpression[2]));
+    } else {
+        setExpression(getExpression() + this.textContent);
     }
 
-    const display = document.querySelector(".display .expression");
-    display.textContent = displayText;
+    parsedExpression = parseExpression();
+    if (parsedExpression[3] !== undefined) {
+        setResult(operate(parsedExpression[1], parsedExpression[0], parsedExpression[2]));
+        setExpression(getResult() + parsedExpression[3]);
+    }
+
+    const displayExpression = document.querySelector(".display .expression");
+    displayExpression.textContent = getExpression();
+
+    const displayResult = document.querySelector(".display .result");
+    displayResult.textContent = getResult();
+
+    if (this.id == "equals") {
+        setExpression(getResult());
+    }
 }
 
-function setDisplayText(text) {
-    displayText = text;
+// Expression and Result Manipulation //
+function setExpression(text) {
+    expression = text;
 }
 
-function getDisplayText(){
-    return displayText;
+function getExpression() {
+    return expression;
 }
 
+function setResult(text) {
+    result = text;
+}
+
+function getResult() {
+    return result;
+}
+
+function parseExpression() {
+    // Separate the expression into operands and operator for evaluation
+    // toString needed in case parsing a single value
+    return getExpression().toString().split(/(\/|\*|\+|-)/);
+    //console.log(parsedExpression);
+}
+
+// Event Listener //
 function initButtons() {
     const buttons = document.querySelectorAll("button");
     buttons.forEach(button => {
-        button.addEventListener("click",updateDisplay);
+        button.addEventListener("click", updateDisplay);
     });
 }
 
-let displayText = "";
+let expression = "";
+let result = ""
 
 initButtons();
