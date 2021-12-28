@@ -13,7 +13,8 @@ function multiply(a, b) {
 
 function divide(a, b) {
     if (b == 0) {
-        return 420;
+        alert("Can't divide by 0!");
+        return ;
     }
     return a / b;
 }
@@ -33,121 +34,12 @@ function operate(operator, a, b) {
         return divide(a, b);
     } else if (operator == "^") {
         return powerOf(a, b);
-    }
-}
-
-// Calculator updater //
-function updateCalc() {
-    // Update expression based on key pressed
-    updateExpression(this);
-
-    // Evaluate expression if needed
-    evaluateExpression();
-
-    // Display new expression and/or results
-    updateDisplay();
-}
-
-// Display Functions //
-function updateDisplay() {
-    const displayExpression = document.querySelector(".display .expression");
-    displayExpression.textContent = getExpression();
-
-    const displayResult = document.querySelector(".display .result");
-    displayResult.textContent = getResult();
-}
-
-// Expression and Result Manipulation //
-function evaluateExpression() {
-    // Get parsed expression
-    const parsedExpression = parseExpression();
-
-    // Evaluate expression
-    if (parsedExpression[3] !== undefined) {
-        setResult(Math.round(operate(parsedExpression[1], parsedExpression[0], parsedExpression[2])*100000)/100000);
-        if (parsedExpression[3] != "=") {
-            setExpression(getResult() + parsedExpression[3]);
-        } else {
-            setExpression(getResult());
-        }
-    }
-}
-
-function updateExpression(button) {
-    // Get parsed expression
-    const parsedExpression = parseExpression();
-    const regexOperator = /(\/|\*|\+|-|\^)/;
-    const regexDecimal = /\./;
-
-    if (button.id == "backspace") {
-        backspace();
-    } else if (button.id == "sign") {
-
-    } else if (button.id == "clear") {
-        clear();
-    } else if (button.id == "decimal") {
-        // Add decimal only if one hasn't already been used in current number
-        if (!regexDecimal.test(parsedExpression[parsedExpression.length - 1])) {
-            setExpression(getExpression() + ".");
-        }
-    } else if (button.id == "equals") {
-        // Add equals to expression only if the current expression can be evaluated
-        if (parsedExpression[2]) {
-            setExpression(getExpression() + "=");
-        }
-    } else if (button.id == "add" || button.id == "subtract" || button.id == "multiply" || button.id == "divide" || button.id == "power") {
-        // Add operator only if one hasn't already been used OR the current expression can be evaulated AND the expression isn't empty
-        if ((!regexOperator.test(expression) || parsedExpression[2]) && expression != "") {
-            setExpression(getExpression() + button.textContent);
-        }
     } else {
-        if (getExpression() != getResult()) {
-            setExpression(getExpression() + button.textContent);
-        } else {
-            clear();
-            setExpression(button.textContent);
-        }
+        return;
     }
 }
 
-function backspace() {
-    // Delete entries up to the result. If user attempts to delete result then clear.
-    if (getExpression() != getResult()) {
-        setExpression(getExpression().toString().slice(0, getExpression.length - 1));
-    } else {
-        clear();
-    }
-}
-
-function clear() {
-    setExpression("");
-    setResult("");
-}
-
-function setExpression(text) {
-    expression = text;
-}
-
-function getExpression() {
-    return expression;
-}
-
-function setResult(text) {
-    result = text;
-}
-
-function getResult() {
-    return result;
-}
-
-function parseExpression() {
-    // Separate the expression into operands and operator for evaluation
-    // toString needed in case parsing a single value
-    return getExpression().toString().split(/(\/|\*|\+|-|\^|=)/);
-    //console.log(parsedExpression);
-}
-
-// Event Listener //
+// Event Listeners //
 function initButtons() {
     const buttons = document.querySelectorAll("button");
     buttons.forEach(button => {
@@ -155,7 +47,147 @@ function initButtons() {
     });
 }
 
-let expression = "";
-let result = ""
+function appendDigit(number) {
+    if (operator == "") {
+        operand1 += number;
+    } else {
+        operand2 += number;
+    }
+}
+
+function setOperator(newOperator) {
+    // Attempt to evaluate the expression first if it's valid 
+    evaluate();
+
+    // Set operator if currently blank and operand1 is valid for the expression
+    if (operator == "" && !(operand1 == "" || operand1 == "-")) {
+        operator = newOperator;
+    }
+}
+
+function clear() {
+    operand1 = "";
+    operator = "";
+    operand2 = "";
+    result = "";
+}
+
+function backspace() {
+    // Delete from operands or operator depending on what has been filled so far
+    if (operand2 != "") {
+        operand2 = operand2.toString().slice(0, -1);
+    } else if (operator != "") {
+        operator = "";
+    } else {
+        operand1 = operand1.toString().slice(0, -1);
+    }
+}
+
+function isValidExpression() {
+    // Check for a complete expression
+    if (operand1 == "" || operator == "" || operand2 == "") {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+function evaluate() {
+    // If the expression is complete, attempt to evaluate it and set up for next expression.
+    if (isValidExpression()) {
+        // Prevent the calculator from updating if result is NaN (i.e. divide by 0 or invalid expression)
+        // Invalid example would be: "- ^ -"
+        if (!isNaN(operate(operator, operand1, operand2))){
+            // Limit results to a maximum of 8 decimal places
+            result = Math.round(operate(operator, operand1, operand2)*100000000)/100000000;
+            operand1 = result;
+            operator = "";
+            operand2 = "";
+        }
+    }
+}
+
+function isNegative(operand) {
+    // Check if an operand is negative
+    if (operand.toString()[0] == "-") {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function negate() {
+    // Negate operand2 if operator has been entered. Else, negate operand1
+    if (operator != "") {
+        if (isNegative(operand2)) {
+            operand2 = operand2.toString().slice(1);
+        } else {
+            operand2 = "-" + operand2;
+        }
+    } else {
+        if (isNegative(operand1)) {
+            operand1 = operand1.toString().slice(1);
+        } else {
+            operand1 = "-" + operand1;
+        }
+    }
+}
+
+function containsDecimal(operand) {
+    // Check if operand contains a decimal already
+    if (operand.includes(".")){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function appendDecimal() {
+    if (operator != "") {
+        if (!containsDecimal(operand2)) {
+            operand2 += ".";
+        }
+    } else {
+        if (!containsDecimal(operand1)) {
+            operand1 += ".";
+        }
+    }
+}
+
+function updateCalc() {
+    // Update operators or operand
+    if (this.className == "number") {
+        appendDigit(this.textContent);
+    } else if (this.className == "operator") {
+        setOperator(this.textContent);
+    } else if (this.id == "clear") {
+        clear();
+    } else if (this.id == "backspace") {
+        backspace();
+    } else if (this.id == "equals") {
+        evaluate();
+    } else if (this.id == "sign") {
+        negate();
+    } else if (this.id == "decimal") {
+        appendDecimal();
+    }
+
+    // Update the display
+    updateDisplay();
+}
+
+function updateDisplay() {
+    const displayExpression = document.querySelector(".display .expression");
+    displayExpression.textContent = `${operand1} ${operator} ${operand2}`;
+
+    const displayResult = document.querySelector(".display .result");
+    displayResult.textContent = result;
+}
+
+// Global variables and event listener initalization
+let operand1 = "";
+let operator = "";
+let operand2 = "";
+let result = "";
 
 initButtons();
