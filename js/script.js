@@ -13,7 +13,7 @@ function multiply(a, b) {
 
 function divide(a, b) {
     if (b == 0) {
-        return "ERR: DIV 0";
+        return 420;
     }
     return a / b;
 }
@@ -33,8 +33,6 @@ function operate(operator, a, b) {
         return divide(a, b);
     } else if (operator == "^") {
         return powerOf(a, b);
-    } else {
-        return "error";
     }
 }
 
@@ -66,7 +64,7 @@ function evaluateExpression() {
 
     // Evaluate expression
     if (parsedExpression[3] !== undefined) {
-        setResult(operate(parsedExpression[1], parsedExpression[0], parsedExpression[2]));
+        setResult(Math.round(operate(parsedExpression[1], parsedExpression[0], parsedExpression[2])*100000)/100000);
         if (parsedExpression[3] != "=") {
             setExpression(getResult() + parsedExpression[3]);
         } else {
@@ -78,13 +76,11 @@ function evaluateExpression() {
 function updateExpression(button) {
     // Get parsed expression
     const parsedExpression = parseExpression();
-    const regexOperator = /(\/|\*|\+|-)/;
+    const regexOperator = /(\/|\*|\+|-|\^)/;
     const regexDecimal = /\./;
 
     if (button.id == "backspace") {
         backspace();
-    } else if (button.id == "power") {
-        setExpression(getExpression() + "^");
     } else if (button.id == "sign") {
 
     } else if (button.id == "clear") {
@@ -99,9 +95,9 @@ function updateExpression(button) {
         if (parsedExpression[2]) {
             setExpression(getExpression() + "=");
         }
-    } else if (button.id == "add" || button.id == "subtract" || button.id == "multiply" || button.id == "divide") {
-        // Add operator only if one hasn't already been used OR the current expression can be evaulated
-        if (!regexOperator.test(expression) || parsedExpression[2]) {
+    } else if (button.id == "add" || button.id == "subtract" || button.id == "multiply" || button.id == "divide" || button.id == "power") {
+        // Add operator only if one hasn't already been used OR the current expression can be evaulated AND the expression isn't empty
+        if ((!regexOperator.test(expression) || parsedExpression[2]) && expression != "") {
             setExpression(getExpression() + button.textContent);
         }
     } else {
